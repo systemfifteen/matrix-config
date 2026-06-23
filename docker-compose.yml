@@ -6,9 +6,16 @@ services:
     depends_on:
       synapse-db:
         condition: service_healthy
+    entrypoint: ["/bin/sh", "/startup.sh"]
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MACAROON_SECRET_KEY: ${MACAROON_SECRET_KEY}
+      FORM_SECRET: ${FORM_SECRET}
+      REGISTRATION_SHARED_SECRET: ${REGISTRATION_SHARED_SECRET}
     volumes:
       - synapse-data:/data
-      - ./homeserver.actual.yaml:/data/homeserver.yaml:ro
+      - ./homeserver.yaml:/config/homeserver.yaml:ro
+      - ./startup.sh:/startup.sh:ro
     networks:
       - matrix-internal
       - proxy
