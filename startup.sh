@@ -1,14 +1,15 @@
 #!/bin/sh
 set -e
 
-# Substituovanie env premenných do homeserver.yaml
-python3 -c "
+# Substituovanie env premennych do homeserver.yaml
+# Pouzivame heredoc s 'PYEOF' aby shell neexpandoval ${...} v Python kode
+python3 << 'PYEOF'
 import os, re
 template = open('/config/homeserver.yaml').read()
 result = re.sub(r'\${([^}]+)}', lambda m: os.environ.get(m.group(1), m.group(0)), template)
 open('/data/homeserver.yaml', 'w').write(result)
 print('homeserver.yaml generated from template')
-"
+PYEOF
 
 # Jednoduchy log config — stdout only (Docker best practice)
 cat > /data/matrix.system15.win.log.config << 'LOGEOF'
