@@ -1,0 +1,2 @@
+FROM vectorim/element-web:latest
+COPY element-config.json /app/config.json

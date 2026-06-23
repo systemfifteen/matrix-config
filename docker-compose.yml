@@ -1,12 +1,12 @@
 services:
   synapse:
-    image: matrixdotorg/synapse:latest
-    container_name: synapse
+    build:
+      context: .
+      dockerfile: Dockerfile.synapse
     restart: unless-stopped
     depends_on:
       synapse-db:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "/startup.sh"]
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       MACAROON_SECRET_KEY: ${MACAROON_SECRET_KEY}
@@ -14,8 +14,6 @@ services:
       REGISTRATION_SHARED_SECRET: ${REGISTRATION_SHARED_SECRET}
     volumes:
       - synapse-data:/data
-      - ./homeserver.yaml:/config/homeserver.yaml:ro
-      - ./startup.sh:/startup.sh:ro
     networks:
       - matrix-internal
       - proxy
@@ -29,7 +27,6 @@ services:
 
   synapse-db:
     image: postgres:16-alpine
-    container_name: synapse-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: synapse
@@ -47,11 +44,10 @@ services:
       retries: 5
 
   element:
-    image: vectorim/element-web:latest
-    container_name: element-web
+    build:
+      context: .
+      dockerfile: Dockerfile.element
     restart: unless-stopped
-    volumes:
-      - ./element-config.json:/app/config.json:ro
     networks:
       - proxy
     labels:
