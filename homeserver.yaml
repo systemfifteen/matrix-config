@@ -1,0 +1,50 @@
+server_name: "matrix.system15.win"
+pid_file: /data/homeserver.pid
+
+listeners:
+  - port: 8008
+    tls: false
+    type: http
+    x_forwarded: true
+    resources:
+      - names: [client, federation]
+        compress: false
+
+database:
+  name: psycopg2
+  args:
+    user: synapse
+    password: ${POSTGRES_PASSWORD}
+    database: synapse
+    host: synapse-db
+    cp_min: 5
+    cp_max: 10
+
+log_config: "/data/matrix.system15.win.log.config"
+
+media_store_path: /data/media_store
+
+registration_shared_secret: "${REGISTRATION_SHARED_SECRET}"
+
+report_stats: false
+
+macaroon_secret_key: "${MACAROON_SECRET_KEY}"
+form_secret: "${FORM_SECRET}"
+
+signing_key_path: "/data/matrix.system15.win.signing.key"
+
+# Vypnúť verejnú registráciu — účty len cez admin alebo invitation
+enable_registration: false
+
+# Trusted key servers
+trusted_key_servers:
+  - server_name: "matrix.org"
+
+# Rate limiting — miernejšie pre malý server
+rc_message:
+  per_second: 10
+  burst_count: 50
+
+rc_registration:
+  per_second: 0.1
+  burst_count: 3

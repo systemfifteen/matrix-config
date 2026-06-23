@@ -1,0 +1,19 @@
+{
+  "default_server_config": {
+    "m.homeserver": {
+      "base_url": "https://matrix.system15.win",
+      "server_name": "matrix.system15.win"
+    }
+  },
+  "brand": "Poetika Chat",
+  "default_theme": "dark",
+  "room_directory": {
+    "servers": ["matrix.system15.win"]
+  },
+  "disable_guests": true,
+  "disable_login_language_selector": false,
+  "default_country_code": "SK",
+  "show_labs_settings": false,
+  "features": {},
+  "map_style_url": "https://api.maptiler.com/maps/streets/style.json?key=fU3vlMsMn4Kgh57MNKnf"
+}

@@ -1,0 +1,67 @@
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: synapse
+    restart: unless-stopped
+    depends_on:
+      synapse-db:
+        condition: service_healthy
+    volumes:
+      - synapse-data:/data
+      - ./homeserver.actual.yaml:/data/homeserver.yaml:ro
+    networks:
+      - matrix-internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.synapse.rule=Host(`matrix.system15.win`)"
+      - "traefik.http.routers.synapse.entrypoints=https"
+      - "traefik.http.routers.synapse.tls.certresolver=letsencrypt"
+      - "traefik.http.services.synapse.loadbalancer.server.port=8008"
+      - "traefik.docker.network=proxy"
+
+  synapse-db:
+    image: postgres:16-alpine
+    container_name: synapse-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: synapse
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - synapse-db-data:/var/lib/postgresql/data
+    networks:
+      - matrix-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  element:
+    image: vectorim/element-web:latest
+    container_name: element-web
+    restart: unless-stopped
+    volumes:
+      - ./element-config.json:/app/config.json:ro
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.element.rule=Host(`chat.system15.win`)"
+      - "traefik.http.routers.element.entrypoints=https"
+      - "traefik.http.routers.element.tls.certresolver=letsencrypt"
+      - "traefik.http.services.element.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
+
+networks:
+  matrix-internal:
+    internal: true
+  proxy:
+    external: true
+    name: proxy
+
+volumes:
+  synapse-data:
+  synapse-db-data:
